@@ -112,16 +112,17 @@ def send_to_telegram(prefix: str, title: str, lead: str, url: str):
     try:
         title_ru = translate(title)
         lead_ru = translate(lead)
-        msg = f"{prefix}: {title_ru}\n\n{lead_ru}\n\n[Источник]({url})"
-        msg = escape_md(msg)
+
+        # Формат: <b>ECONOMIST</b>: Заголовок...
+        message = f"<b>{prefix}</b>: {title_ru}\n\n{lead_ru}\n\nИсточник: {url}"
 
         for ch in CHANNEL_IDS:
             resp = requests.post(
                 f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
                 json={
                     "chat_id": ch,
-                    "text": msg,
-                    "parse_mode": "MarkdownV2"
+                    "text": message,
+                    "parse_mode": "HTML"
                 },
                 timeout=10
             )
