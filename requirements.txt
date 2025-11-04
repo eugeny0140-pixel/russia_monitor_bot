@@ -3,5 +3,4 @@ requests
 schedule
 python-telegram-bot==20.7
 deep-translator
-httpx==0.26.0          # ← критически важно!
-supabase==2.7.0        # ← стабильная версия, совместимая с httpx 0.26
+supabase==2.7.0
