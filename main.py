@@ -48,9 +48,9 @@ SOURCES = [
 ]
 
 KEYWORDS = {
-    'russia', 'ukraine', 'putin', 'kremlin', 'sanctions', 'gas', 'oil',
-    'military', 'nato', 'eu', 'usa', 'europe', 'moscow', 'kyiv', 'kiev',
-    'war', 'geopolitic', 'energy', 'defense', 'grain', 'black sea'
+    'russia', 'ukraine', 'putin', 'kremlin', 'sanctions', 'gas', 'oil', 'military', 'nato', 'eu', 'usa', 'europe', 'moscow', 'kyiv', 'kiev',    'war', 'geopolitic', 'energy', 'defense', 'grain', 'black sea' r"\brussia\b", r"\brussian\b", r"\bputin\b", r"\bmoscow\b", r"\bkremlin\b",r"\bukraine\b", r"\bukrainian\b", r"\bzelensky\b", r"\bkyiv\b", r"\bkiev\b",r"\bcrimea\b", r"\bdonbas\b", r"\bsanction[s]?\b", r"\bgazprom\b",r"\bnord\s?stream\b", r"\bwagner\b", r"\blavrov\b", r"\bshoigu\b",r"\bmedvedev\b", r"\bpeskov\b", r"\bnato\b", r"\beuropa\b", r"\busa\b",r"\bsoviet\b", r"\bussr\b", r"\bpost\W?soviet\b",
+    # === СВО и Война ===
+r"\bsvo\b", r"\bспецоперация\b", r"\bspecial military operation\b",r"\bвойна\b", r"\bwar\b", r"\bconflict\b", r"\bконфликт\b",r"\bнаступление\b", r"\boffensive\b", r"\bатака\b", r"\battack\b",r"\bудар\b", r"\bstrike\b", r"\bобстрел\b", r"\bshelling\b",r"\bдрон\b", r"\bdrone\b", r"\bmissile\b", r"\bракета\b",r"\bэскалация\b", r"\bescalation\b", r"\bмобилизация\b", r"\bmobilization\b",r"\bфронт\b", r"\bfrontline\b", r"\bзахват\b", r"\bcapture\b",r"\bосвобождение\b", r"\bliberation\b", r"\bбой\b", r"\bbattle\b",r"\bпотери\b", r"\bcasualties\b", r"\bпогиб\b", r"\bkilled\b",r"\bранен\b", r"\binjured\b", r"\bпленный\b", r"\bprisoner of war\b",r"\bпереговоры\b", r"\btalks\b", r"\bперемирие\b", r"\bceasefire\b",r"\bсанкции\b", r"\bsanctions\b", r"\bоружие\b", r"\bweapons\b",r"\bпоставки\b", r"\bsupplies\b", r"\bhimars\b", r"\batacms\b",r"\bhour ago\b", r"\bчас назад\b", r"\bminutos atrás\b", r"\b小时前\b",# === Криптовалюта (топ-20 + CBDC, DeFi, регуляция) ===r"\bbitcoin\b", r"\bbtc\b", r"\bбиткоин\b", r"\b比特币\b",r"\bethereum\b", r"\beth\b", r"\bэфир\b", r"\b以太坊\b",r"\bbinance coin\b", r"\bbnb\b", r"\busdt\b", r"\btether\b",r"\bxrp\b", r"\bripple\b", r"\bcardano\b", r"\bada\b",r"\bsolana\b", r"\bsol\b", r"\bdoge\b", r"\bdogecoin\b",r"\bavalanche\b", r"\bavax\b", r"\bpolkadot\b", r"\bdot\b",r"\bchainlink\b", r"\blink\b", r"\btron\b", r"\btrx\b",r"\bcbdc\b", r"\bcentral bank digital currency\b", r"\bцифровой рубль\b",r"\bdigital yuan\b", r"\beuro digital\b", r"\bdefi\b", r"\bдецентрализованные финансы\b",r"\bnft\b", r"\bnon-fungible token\b", r"\bsec\b", r"\bцб рф\b",r"\bрегуляция\b", r"\bregulation\b", r"\bзапрет\b", r"\bban\b",r"\bмайнинг\b", r"\bmining\b", r"\bhalving\b", r"\bхалвинг\b",r"\bволатильность\b", r"\bvolatility\b", r"\bcrash\b", r"\bкрах\b",r"\b刚刚\b", r"\bدقائق مضت\b",    # === Пандемия и болезни (включая биобезопасность) ===r"\bpandemic\b", r"\bпандемия\b", r"\b疫情\b", r"\bجائحة\b",r"\boutbreak\b", r"\bвспышка\b", r"\bэпидемия\b", r"\bepidemic\b",r"\bvirus\b", r"\bвирус\b", r"\bвирусы\b", r"\b变异株\b",r"\bvaccine\b", r"\bвакцина\b", r"\b疫苗\b", r"\bلقاح\b",r"\bbooster\b", r"\bбустер\b", r"\bревакцинация\b",r"\bquarantine\b", r"\bкарантин\b", r"\b隔离\b", r"\bحجر صحي\b",r"\blockdown\b", r"\bлокдаун\b", r"\b封锁\b",r"\bmutation\b", r"\bмутация\b", r"\b变异\b",r"\bstrain\b", r"\bштамм\b", r"\bomicron\b", r"\bdelta\b",r"\bbiosafety\b", r"\bбиобезопасность\b", r"\b生物安全\b",r"\blab leak\b", r"\bлабораторная утечка\b", r"\b实验室泄漏\b",r"\bgain of function\b", r"\bусиление функции\b", r"\bwho\b", r"\bвоз\b", r"\bcdc\b", r"\bроспотребнадзор\b", r"\binfection rate\b", r"\bзаразность\b", r"\b死亡率\b", r"\bhospitalization\b", r"\bгоспитализация\b", r"\bقبل ساعات\b", r"\b刚刚报告\b"
 }
 
 # === Функции ===
@@ -96,7 +96,7 @@ def send_to_telegram(prefix: str, title: str, lead: str, url: str):
     try:
         title_ru = translate(title)
         lead_ru = translate(lead)
-        msg = f"{prefix}: {title_ru}\n\n{lead_ru}\n\n[Источник]({url})"
+        msg = f"<b>{prefix}</b>: {ru_title}\n\n{ru_desc}\n\nИсточник: {link}"
         msg = escape_md(msg)
 
         for ch in CHANNEL_IDS:
