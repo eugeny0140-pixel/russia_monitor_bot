@@ -230,7 +230,7 @@ if __name__ == "__main__":
     logger.info("🚀 Starting Russia Monitor Bot...")
     threading.Thread(target=run_http, daemon=True).start()
     fetch_and_process()
-    schedule.every(30).minutes.do(fetch_and_process)
+    schedule.every(15).minutes.do(fetch_and_process)
     schedule.every().hour.do(lambda: logger.info("⏰ Heartbeat"))
 
     while True:
