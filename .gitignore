@@ -1,3 +1,5 @@
-bot.log
 __pycache__/
+*.pyc
 .env
+bot.log
+.DS_Store
