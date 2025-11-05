@@ -106,6 +106,10 @@ RSS_SOURCES = [
     {"name": "AP", "rss": "https://feeds.apnews.com/apf-topnews", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/military/", "/sanctions/", "/energy-crisis/", "/putin/", "/war/", "/conflict/", "/eastern-europe/" ]},
     {"name": "POLITICO", "rss": "https://www.politico.com/rss/politicopicks.xml", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/defense/", "/national-security/", "/foreign-policy/", "/nato/", "/sanctions/", "/energy/", "/kremlin/" ]},
     {"name": "BBCNEWS", "rss": "https://feeds.bbci.co.uk/news/world/rss.xml", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/putin/", "/war-in-ukraine/", "/sanctions/", "/eastern-europe/", "/moscow/", "/kyiv/", "/kremlin/" ]},]
+# Удаляем ВСЕ HTML-теги из лид-текста
+lead = clean_html(lead)
+if not lead.strip():
+    continue
 def parse_rss_sources():
     import feedparser
     for src in RSS_SOURCES:
