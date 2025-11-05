@@ -107,7 +107,7 @@ r"\bgain of function\b", r"\bусиление функции\b",
 r"\bwho\b", r"\bвоз\b", r"\bcdc\b", r"\bроспотребнадзор\b",
 r"\binfection rate\b", r"\bзаразность\b", r"\b死亡率\b",
 r"\bhospitalization\b", r"\bгоспитализация\b",
-r"\bقبل ساعات\b", r"\b刚刚报告\b"]
+r"\bقبل ساعات\b", r"\b刚刚报告\b"
 }
 
 def is_relevant(text: str) -> bool:
