@@ -101,11 +101,11 @@ RSS_SOURCES = [
     {"name": "Carnegie", "rss": "https://carnegieendowment.org/rss"},
     {"name": "ECONOMIST", "rss": "https://www.economist.com/leaders/rss.xml"},
     {"name": "BLOOMBERG", "rss": "https://www.bloomberg.com/politics/feeds/site.xml"},
-    {"name": "REUTERS", "rss": "https://www.reuters.com/rss/world/", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
-    {"name": "AP", "rss": "https://feeds.apnews.com/apf-topnews", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
-    {"name": "POLITICO", "rss": "https://www.politico.com/rss/politicopicks.xml", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
-    {"name": "BBCNEWS", "rss": "https://feeds.bbci.co.uk/news/world/rss.xml", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
-]
+     # --- Новостные с расширенной фильтрацией по URL ---
+    {"name": "REUTERS", "rss": "https://www.reuters.com/rss/world/", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/defense/", "/sanctions/",  "/energy/", "/gas/", "/putin/", "/kremlin/", "/moscow/", "/kiev/", "/kyiv/" ]},
+    {"name": "AP", "rss": "https://feeds.apnews.com/apf-topnews", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/military/", "/sanctions/", "/energy-crisis/", "/putin/", "/war/", "/conflict/", "/eastern-europe/" ]},
+    {"name": "POLITICO", "rss": "https://www.politico.com/rss/politicopicks.xml", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/defense/", "/national-security/", "/foreign-policy/", "/nato/", "/sanctions/", "/energy/", "/kremlin/" ]},
+    {"name": "BBCNEWS", "rss": "https://feeds.bbci.co.uk/news/world/rss.xml", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/putin/", "/war-in-ukraine/", "/sanctions/", "/eastern-europe/", "/moscow/", "/kyiv/", "/kremlin/" ]},]
 def parse_rss_sources():
     import feedparser
     for src in RSS_SOURCES:
