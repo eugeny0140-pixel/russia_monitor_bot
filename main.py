@@ -17,7 +17,11 @@ logger = logging.getLogger(__name__)
 
 # === Переменные окружения ===
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHANNEL_IDS = [cid.strip() for cid in os.getenv("CHANNEL_ID1", "CHANNEL_ID2").split(",") if cid.strip()]
+CHANNEL_IDS = []
+if os.getenv("CHANNEL_ID1"):
+    CHANNEL_IDS.extend([cid.strip() for cid in os.getenv("CHANNEL_ID1").split(",") if cid.strip()])
+if os.getenv("CHANNEL_ID2"):
+    CHANNEL_IDS.extend([cid.strip() for cid in os.getenv("CHANNEL_ID2").split(",") if cid.strip()])
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 PORT = int(os.getenv("PORT", 10000))
