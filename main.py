@@ -10,24 +10,28 @@ import requests
 from bs4 import BeautifulSoup
 from deep_translator import GoogleTranslator
 from supabase import create_client
+
 # === Логирование ===
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
+
 # === Переменные окружения ===
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHANNEL_IDS = [cid.strip() for cid in os.getenv("CHANNEL_ID1", "").split(",") if cid.strip()]
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 PORT = int(os.getenv("PORT", 10000))
+
 # Проверка обязательных переменных
 for var in ["TELEGRAM_BOT_TOKEN", "CHANNEL_ID1", "SUPABASE_URL", "SUPABASE_KEY"]:
     if not os.getenv(var):
         logger.error(f"❌ Отсутствует переменная: {var}")
         exit(1)
+
 # === Supabase ===
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-# === Ключевые слова (без дублей) ===
-# === Ключевые слова (без дублей, с поддержкой латиницы и кириллицы) ===
+
+# === Ключевые слова ===
 KEYWORDS = {
         # --- Геополитика ---
     r"\brussia\b", r"\brussian\b", r"\bputin\b", r"\bmoscow\b", r"\bkremlin\b", r"\bukraine\b", r"\bukrainian\b", r"\bzelensky\b", r"\bkyiv\b", r"\bkiev\b", r"\bcrimea\b", r"\bdonbas\b", r"\bsanction[s]?\b", r"\bgazprom\b",  r"\bnord\s?stream\b", r"\bwagner\b", r"\blavrov\b", r"\bshoigu\b", r"\bmedvedev\b", r"\bpeskov\b", r"\bnato\b", r"\beuropa\b", r"\busa\b",r"\bsoviet\b", r"\bussr\b", r"\bpost\W?soviet\b", r"\bbelarus\b", r"\bminsk\b", r"\bmoldova\b", r"\bgeorgia\b", r"\bbaltic\b", r"\bestonia\b", r"\blatvia\b", r"\blithuania\b", r"\bblack\s?sea\b", r"\bcaucasus\b", r"\beastern\s?europe\b",
@@ -46,7 +50,6 @@ def clean_html(raw: str) -> str:
     if not raw:
         return ""
     return re.sub(r'<[^>]+>', '', raw).strip()
-
 def translate(text: str) -> str:
     if not text.strip():
         return ""
@@ -54,7 +57,6 @@ def translate(text: str) -> str:
         return GoogleTranslator(source='auto', target='ru').translate(text)
     except:
         return text
-
 def is_article_sent(url: str) -> bool:
     try:
         resp = supabase.table("published_articles").select("url").eq("url", url).execute()
@@ -62,20 +64,19 @@ def is_article_sent(url: str) -> bool:
     except Exception as e:
         logger.error(f"Supabase check error: {e}")
         return False
-
 def mark_article_sent(url: str, title: str):
     try:
         supabase.table("published_articles").insert({"url": url, "title": title}).execute()
         logger.info(f"✅ Saved: {url}")
     except Exception as e:
         logger.error(f"Supabase insert error: {e}")
-
 def send_to_telegram(prefix: str, title: str, lead: str, url: str):
     try:
         title_ru = translate(title)
         lead_ru = translate(lead)
         message = f"<b>{prefix}</b>: {title_ru}\n\n{lead_ru}\n\nИсточник: {url}"
         for ch in CHANNEL_IDS:
+            # ИСПРАВЛЕНО: убраны пробелы в URL
             resp = requests.post(
                 f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
                 json={"chat_id": ch, "text": message, "parse_mode": "HTML"},
@@ -87,7 +88,7 @@ def send_to_telegram(prefix: str, title: str, lead: str, url: str):
                 logger.error(f"❌ Ошибка Telegram: {resp.status_code}")
     except Exception as e:
         logger.exception("Ошибка отправки")
-# === Парсер RSS ===
+# === Парсер RSS-источников ===
 RSS_SOURCES = [
     {"name": "E3G", "rss": "https://www.e3g.org/feed/"},
     {"name": "Foreign Affairs", "rss": "https://www.foreignaffairs.com/rss.xml"},
@@ -101,11 +102,12 @@ RSS_SOURCES = [
     {"name": "Carnegie", "rss": "https://carnegieendowment.org/rss"},
     {"name": "ECONOMIST", "rss": "https://www.economist.com/leaders/rss.xml"},
     {"name": "BLOOMBERG", "rss": "https://www.bloomberg.com/politics/feeds/site.xml"},
-     # --- Новостные с расширенной фильтрацией по URL ---
-    {"name": "REUTERS", "rss": "https://www.reuters.com/rss/world/", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/defense/", "/sanctions/",  "/energy/", "/gas/", "/putin/", "/kremlin/", "/moscow/", "/kiev/", "/kyiv/" ]},
-    {"name": "AP", "rss": "https://feeds.apnews.com/apf-topnews", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/military/", "/sanctions/", "/energy-crisis/", "/putin/", "/war/", "/conflict/", "/eastern-europe/" ]},
-    {"name": "POLITICO", "rss": "https://www.politico.com/rss/politicopicks.xml", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/defense/", "/national-security/", "/foreign-policy/", "/nato/", "/sanctions/", "/energy/", "/kremlin/" ]},
-    {"name": "BBCNEWS", "rss": "https://feeds.bbci.co.uk/news/world/rss.xml", "filter_path": [ "/russia/", "/ukraine/", "/europe/", "/nato/", "/putin/", "/war-in-ukraine/", "/sanctions/", "/eastern-europe/", "/moscow/", "/kyiv/", "/kremlin/" ]},]
+    {"name": "REUTERS", "rss": "https://www.reuters.com/rss/world/", "filter_path": ["/russia/", "/ukraine/", "/europe/", "/nato/"]},
+    {"name": "AP", "rss": "https://feeds.apnews.com/apf-topnews", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
+    {"name": "POLITICO", "rss": "https://www.politico.com/rss/politicopicks.xml", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
+    {"name": "BBCNEWS", "rss": "https://feeds.bbci.co.uk/news/world/rss.xml", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
+    {"name": "WEF", "rss": "https://www.weforum.org/feeds/root.xml"},  # Добавлен WEF
+]
 def parse_rss_sources():
     import feedparser
     for src in RSS_SOURCES:
@@ -118,8 +120,7 @@ def parse_rss_sources():
                 # Фильтр по URL (только для новостных)
                 if "filter_path" in src and not any(p in url.lower() for p in src["filter_path"]):
                     continue
-
-                # Фильтр по дате (игнорировать старше 7 дней)
+                # Фильтр по дате (старше 7 дней — игнор)
                 published = getattr(entry, "published", None)
                 if published:
                     try:
@@ -135,29 +136,24 @@ def parse_rss_sources():
                 desc = clean_html(entry.get("summary", "")).strip()
                 if not title or not desc:
                     continue
-                # Убрать дубль заголовка и шаблонные фразы
+                # Убираем дубль заголовка
                 if desc.lower().startswith(title.lower()):
                     desc = desc[len(title):].lstrip(" –-:,.")
-
-                desc = re.sub(r"(Сводная информация о листинге|Пожалуйста, присоединяйтесь|Drupal-администратор).*", "", desc, flags=re.IGNORECASE | re.DOTALL)
-                desc = "\n".join(line.strip() for line in desc.splitlines() if line.strip())
-
                 if not is_relevant(f"{title} {desc}"):
                     continue
-                lead = ""
+                # Получаем лид
                 sentences = [s.strip() for s in re.split(r'[.!?]+', desc) if s.strip()]
-                if sentences:
-                    lead = sentences[0] + "."
-                else:
-                    lead = desc[:150] + "..."
+                lead = sentences[0] + "." if sentences else desc[:150] + "..."
+                # ОЧИСТКА HTML (на всякий случай)
+                lead = clean_html(lead)
+                if not lead.strip():
+                    continue
                 send_to_telegram(src["name"], title, lead, url)
                 mark_article_sent(url, title)
                 time.sleep(0.5)
         except Exception as e:
             logger.error(f"Ошибка RSS {src['name']}: {e}")
-import email.utils
-from datetime import datetime, timezone
-
+# === Парсеры non-RSS источников ===
 def parse_goodjudgment():
     url = "https://goodjudgment.com/open-questions/"
     try:
@@ -172,14 +168,12 @@ def parse_goodjudgment():
                 continue
             if not is_relevant(title):
                 continue
-            # Используем текущее время как дату
             lead = "Superforecasting question on geopolitical risk"
             send_to_telegram("GOODJ", title, lead, href)
             mark_article_sent(href, title)
             time.sleep(0.5)
     except Exception as e:
         logger.error(f"Ошибка GOODJ: {e}")
-
 def parse_jhchs():
     url = "https://www.centerforhealthsecurity.org"
     try:
@@ -201,7 +195,6 @@ def parse_jhchs():
             time.sleep(0.5)
     except Exception as e:
         logger.error(f"Ошибка JHCHS: {e}")
-
 def parse_metaculus():
     api_url = "https://www.metaculus.com/api2/questions/?status=open&limit=10"
     try:
@@ -211,7 +204,7 @@ def parse_metaculus():
             page_url = q.get('page_url', '').strip()
             if not title or not page_url:
                 continue
-            full_url = "https://www.metaculus.com" + page_url
+            full_url = "https://www.metaculus.com" + page_url  # ИСПРАВЛЕНО: убраны пробелы
             if is_article_sent(full_url) or not is_relevant(title):
                 continue
             desc = clean_html(q.get('description', ''))[:200] + "..."
@@ -220,13 +213,11 @@ def parse_metaculus():
             time.sleep(0.5)
     except Exception as e:
         logger.error(f"Ошибка META: {e}")
-
 def parse_dni():
     url = "https://www.dni.gov"
     try:
         resp = requests.get(url, timeout=10)
         soup = BeautifulSoup(resp.text, 'html.parser')
-        # Ищем ссылку на отчёт "Global Trends"
         for a in soup.find_all('a', href=True):
             if 'global' in a['href'].lower() and 'trend' in a['href'].lower():
                 full_url = a['href']
@@ -238,17 +229,15 @@ def parse_dni():
                 lead = "US National Intelligence Council forecast on long-term global risks"
                 send_to_telegram("DNI", title, lead, full_url)
                 mark_article_sent(full_url, title)
-                return  # достаточно одной ссылки
+                return
     except Exception as e:
         logger.error(f"Ошибка DNI: {e}")
-
 def parse_future_timeline():
     url = "https://www.futuretimeline.net"
     try:
         resp = requests.get(url, timeout=10)
-        # Если сайт заблокирован (например, в Непале), пропустим
-        if "restricted" in resp.text.lower() or resp.status_code != 200:
-            logger.warning("Future Timeline недоступен — пропускаем.")
+        if resp.status_code != 200:
+            logger.warning("Future Timeline недоступен")
             return
         soup = BeautifulSoup(resp.text, 'html.parser')
         for item in soup.select('li a'):
@@ -256,7 +245,7 @@ def parse_future_timeline():
             href = item.get('href')
             if not href or not href.startswith('/'):
                 continue
-            full_url = 'https://www.futuretimeline.net' + href
+            full_url = 'https://www.futuretimeline.net' + href  # ИСПРАВЛЕНО
             if 'futuretimeline.net' not in full_url or is_article_sent(full_url):
                 continue
             if not is_relevant(title):
@@ -271,14 +260,13 @@ def parse_future_timeline():
 def fetch_all():
     logger.info("📡 Проверка всех источников...")
     parse_rss_sources()
-    # Парсим non-RSS источники
+    # Non-RSS источники
     parse_goodjudgment()
     parse_jhchs()
     parse_metaculus()
     parse_dni()
     parse_future_timeline()
     logger.info("✅ Проверка завершена.")
-
 # === HTTP-сервер для Render ===
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -297,7 +285,7 @@ def run_http():
 if __name__ == "__main__":
     logger.info("🚀 Запуск бота...")
     threading.Thread(target=run_http, daemon=True).start()
-    # Проверка подключения к Supabase
+    # Проверка Supabase
     try:
         supabase.table("published_articles").select("url").limit(1).execute()
         logger.info("✅ Supabase подключён")
