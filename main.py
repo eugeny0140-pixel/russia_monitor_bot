@@ -155,10 +155,128 @@ def parse_rss_sources():
                 time.sleep(0.5)
         except Exception as e:
             logger.error(f"Ошибка RSS {src['name']}: {e}")
+import email.utils
+from datetime import datetime, timezone
+
+def parse_goodjudgment():
+    url = "https://goodjudgment.com/open-questions/"
+    try:
+        resp = requests.get(url, timeout=10)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        for item in soup.select('.question-title a'):
+            title = item.get_text(strip=True)
+            href = item['href']
+            if href.startswith('/'):
+                href = 'https://goodjudgment.com' + href
+            if not href.startswith('http') or is_article_sent(href):
+                continue
+            if not is_relevant(title):
+                continue
+            # Используем текущее время как дату
+            lead = "Superforecasting question on geopolitical risk"
+            send_to_telegram("GOODJ", title, lead, href)
+            mark_article_sent(href, title)
+            time.sleep(0.5)
+    except Exception as e:
+        logger.error(f"Ошибка GOODJ: {e}")
+
+def parse_jhchs():
+    url = "https://www.centerforhealthsecurity.org"
+    try:
+        resp = requests.get(url, timeout=10)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        for item in soup.select('h2 a, h3 a'):
+            title = item.get_text(strip=True)
+            href = item.get('href')
+            if not href or not href.startswith('/'):
+                continue
+            full_url = url + href
+            if is_article_sent(full_url):
+                continue
+            if not is_relevant(title):
+                continue
+            lead = "Report from Johns Hopkins Center for Health Security"
+            send_to_telegram("JHCHS", title, lead, full_url)
+            mark_article_sent(full_url, title)
+            time.sleep(0.5)
+    except Exception as e:
+        logger.error(f"Ошибка JHCHS: {e}")
+
+def parse_metaculus():
+    api_url = "https://www.metaculus.com/api2/questions/?status=open&limit=10"
+    try:
+        data = requests.get(api_url, timeout=10).json()
+        for q in data.get('results', []):
+            title = q.get('title', '').strip()
+            page_url = q.get('page_url', '').strip()
+            if not title or not page_url:
+                continue
+            full_url = "https://www.metaculus.com" + page_url
+            if is_article_sent(full_url) or not is_relevant(title):
+                continue
+            desc = clean_html(q.get('description', ''))[:200] + "..."
+            send_to_telegram("META", title, desc, full_url)
+            mark_article_sent(full_url, title)
+            time.sleep(0.5)
+    except Exception as e:
+        logger.error(f"Ошибка META: {e}")
+
+def parse_dni():
+    url = "https://www.dni.gov"
+    try:
+        resp = requests.get(url, timeout=10)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        # Ищем ссылку на отчёт "Global Trends"
+        for a in soup.find_all('a', href=True):
+            if 'global' in a['href'].lower() and 'trend' in a['href'].lower():
+                full_url = a['href']
+                if not full_url.startswith('http'):
+                    full_url = url + full_url
+                if is_article_sent(full_url):
+                    continue
+                title = "DNI Global Trends Report"
+                lead = "US National Intelligence Council forecast on long-term global risks"
+                send_to_telegram("DNI", title, lead, full_url)
+                mark_article_sent(full_url, title)
+                return  # достаточно одной ссылки
+    except Exception as e:
+        logger.error(f"Ошибка DNI: {e}")
+
+def parse_future_timeline():
+    url = "https://www.futuretimeline.net"
+    try:
+        resp = requests.get(url, timeout=10)
+        # Если сайт заблокирован (например, в Непале), пропустим
+        if "restricted" in resp.text.lower() or resp.status_code != 200:
+            logger.warning("Future Timeline недоступен — пропускаем.")
+            return
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        for item in soup.select('li a'):
+            title = item.get_text(strip=True)
+            href = item.get('href')
+            if not href or not href.startswith('/'):
+                continue
+            full_url = 'https://www.futuretimeline.net' + href
+            if 'futuretimeline.net' not in full_url or is_article_sent(full_url):
+                continue
+            if not is_relevant(title):
+                continue
+            lead = "Long-term forecast of technological and societal change"
+            send_to_telegram("FUTTL", title, lead, full_url)
+            mark_article_sent(full_url, title)
+            time.sleep(0.5)
+    except Exception as e:
+        logger.error(f"Ошибка FUTTL: {e}")
 # === Основная функция ===
 def fetch_all():
     logger.info("📡 Проверка всех источников...")
     parse_rss_sources()
+    # Парсим non-RSS источники
+    parse_goodjudgment()
+    parse_jhchs()
+    parse_metaculus()
+    parse_dni()
+    parse_future_timeline()
     logger.info("✅ Проверка завершена.")
 
 # === HTTP-сервер для Render ===
