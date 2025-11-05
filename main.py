@@ -54,7 +54,7 @@ KEYWORDS = {
     r"\bпереговоры\b", r"\btalks\b", r"\bперемирие\b", r"\bceasefire\b",
     r"\bсанкции\b", r"\bsanctions\b", r"\bоружие\b", r"\bweapons\b",
     r"\bпоставки\b", r"\bsupplies\b", r"\bhimars\b", r"\batacms\b",
-    KEYWORDS = [
+ 
    r"\brussia\b", r"\brussian\b", r"\bputin\b", r"\bmoscow\b", r"\bkremlin\b",
 r"\bukraine\b", r"\bukrainian\b", r"\bzelensky\b", r"\bkyiv\b", r"\bkiev\b",
 r"\bcrimea\b", r"\bdonbas\b", r"\bsanction[s]?\b", r"\bgazprom\b",
