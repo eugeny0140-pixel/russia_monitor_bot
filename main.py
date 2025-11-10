@@ -20,6 +20,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHANNEL_IDS = [cid.strip() for cid in os.getenv("CHANNEL_ID1", "").split(",") if cid.strip()]
 if os.getenv("CHANNEL_ID2"):
     CHANNEL_IDS.extend([cid.strip() for cid in os.getenv("CHANNEL_ID2").split(",") if cid.strip()])
+
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 PORT = int(os.getenv("PORT", 10000))
@@ -33,7 +34,7 @@ for var in ["TELEGRAM_BOT_TOKEN", "CHANNEL_ID1", "SUPABASE_URL", "SUPABASE_KEY"]
 # === Supabase ===
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# === Ключевые слова (объединённые) ===
+# === Ключевые слова ===
 KEYWORDS = {
     # --- Россия ---
     r"\brussia\b", r"\brussian\b", r"\bputin\b", r"\bmoscow\b", r"\bkremlin\b",
@@ -57,35 +58,27 @@ KEYWORDS = {
     r"\bсанкции\b", r"\bsanctions\b", r"\bоружие\b", r"\bweapons\b",
     r"\bпоставки\b", r"\bsupplies\b", r"\bhimars\b", r"\batacms\b",
     # --- Криптовалюта ---
-    r"\bbitcoin\b", r"\bbtc\b", r"\bбиткоин\b", r"\b比特币\b",
-    r"\bethereum\b", r"\beth\b", r"\bэфир\b", r"\b以太坊\b",
-    r"\bbinance\s+coin\b", r"\bbnb\b", r"\busdt\b", r"\btether\b",
-    r"\bxrp\b", r"\bripple\b", r"\bcardano\b", r"\bada\b",
-    r"\bsolana\b", r"\bsol\b", r"\bdoge\b", r"\bdogecoin\b",
-    r"\bavalanche\b", r"\bavax\b", r"\bpolkadot\b", r"\bdot\b",
-    r"\bchainlink\b", r"\blink\b", r"\btron\b", r"\btrx\b",
-    r"\bcbdc\b", r"\bcentral\s+bank\s+digital\s+currency\b", r"\bцифровой\s+рубль\b",
-    r"\bdigital\s+yuan\b", r"\beuro\s+digital\b", r"\bdefi\b", r"\bдецентрализованные\s+финансы\b",
-    r"\bnft\b", r"\bnon\s*-\s*fungible\s+token\b", r"\bsec\b", r"\bцб\s+рф\b",
-    r"\bрегуляция\b", r"\bregulation\b", r"\bзапрет\b", r"\bban\b",
-    r"\bмайнинг\b", r"\bmining\b", r"\bhalving\b", r"\bхалвинг\b",
-    r"\bволатильность\b", r"\bvolatility\b", r"\bcrash\b", r"\bкрах\b",
+    r"\bbitcoin\b", r"\bbtc\b", r"\bбиткоин\b", r"\bethereum\b", r"\beth\b", r"\bэфир\b",
+    r"\bbinance\s+coin\b", r"\bbnb\b", r"\busdt\b", r"\btether\b", r"\bxrp\b", r"\bripple\b",
+    r"\bcardano\b", r"\bada\b", r"\bsolana\b", r"\bsol\b", r"\bdoge\b", r"\bdogecoin\b",
+    r"\bavalanche\b", r"\bavax\b", r"\bpolkadot\b", r"\bdot\b", r"\bchainlink\b", r"\blink\b",
+    r"\btron\b", r"\btrx\b", r"\bcbdc\b", r"\bcentral\s+bank\s+digital\s+currency\b",
+    r"\bцифровой\s+рубль\b", r"\bdigital\s+yuan\b", r"\beuro\s+digital\b", r"\bdefi\b",
+    r"\bдецентрализованные\s+финансы\b", r"\bnft\b", r"\bnon\s*-\s*fungible\s+token\b",
+    r"\bsec\b", r"\bцб\s+рф\b", r"\bрегуляция\b", r"\bregulation\b", r"\bзапрет\b", r"\bban\b",
+    r"\bмайнинг\b", r"\bmining\b", r"\bhalving\b", r"\bхалвинг\b", r"\bволатильность\b",
+    r"\bvolatility\b", r"\bcrash\b", r"\bкрах\b",
     # --- Пандемия ---
-    r"\bpandemic\b", r"\bпандемия\b", r"\b疫情\b", r"\bجائحة\b",
-    r"\boutbreak\b", r"\bвспышка\b", r"\bэпидемия\b", r"\bepidemic\b",
-    r"\bvirus\b", r"\bвирус\b", r"\bвирусы\b", r"\b变异株\b",
-    r"\bvaccine\b", r"\bвакцина\b", r"\b疫苗\b", r"\bلقاح\b",
-    r"\bbooster\b", r"\bбустер\b", r"\bревакцинация\b",
-    r"\bquarantine\b", r"\bкарантин\b", r"\b隔离\b", r"\bحجر\s+صحي\b",
-    r"\blockdown\b", r"\bлокдаун\b", r"\b封锁\b",
-    r"\bmutation\b", r"\bмутация\b", r"\b变异\b",
-    r"\bstrain\b", r"\bштамм\b", r"\bomicron\b", r"\bdelta\b",
-    r"\bbiosafety\b", r"\bбиобезопасность\b", r"\b生物安全\b",
-    r"\blab\s+leak\b", r"\bлабораторная\s+утечка\b", r"\b实验室泄漏\b",
-    r"\bgain\s+of\s+function\b", r"\bусиление\s+функции\b",
-    r"\bwho\b", r"\bвоз\b", r"\bcdc\b", r"\bроспотребнадзор\b",
-    r"\binfection\s+rate\b", r"\bзаразность\b", r"\b死亡率\b",
-    r"\bhospitalization\b", r"\bгоспитализация\b",
+    r"\bpandemic\b", r"\bпандемия\b", r"\b疫情\b", r"\bجائحة\b", r"\boutbreak\b", r"\bвспышка\b",
+    r"\bэпидемия\b", r"\bepidemic\b", r"\bvirus\b", r"\bвирус\b", r"\bвирусы\b", r"\b变异株\b",
+    r"\bvaccine\b", r"\bвакцина\b", r"\b疫苗\b", r"\bلقاح\b", r"\bbooster\b", r"\bбустер\b",
+    r"\bревакцинация\b", r"\bquarantine\b", r"\bкарантин\b", r"\b隔离\b", r"\bحجر\s+صحي\b",
+    r"\blockdown\b", r"\bлокдаун\b", r"\b封锁\b", r"\bmutation\b", r"\bмутация\b", r"\b变异\b",
+    r"\bstrain\b", r"\bштамм\b", r"\bomicron\b", r"\bdelta\b", r"\bbiosafety\b", r"\bбиобезопасность\b",
+    r"\b生物安全\b", r"\blab\s+leak\b", r"\bлабораторная\s+утечка\b", r"\b实验室泄漏\b",
+    r"\bgain\s+of\s+function\b", r"\bусиление\s+функции\b", r"\bwho\b", r"\bвоз\b", r"\bcdc\b",
+    r"\bроспотребнадзор\b", r"\binfection\s+rate\b", r"\bзаразность\b", r"\b死亡率\b",
+    r"\bhospitalization\b", r"\bгоспитализация\b", r"\bbefore\s+hours\b", r"\b刚刚报告\b"
 }
 
 def is_relevant(text: str) -> bool:
@@ -139,8 +132,9 @@ def send_to_telegram(prefix: str, title: str, lead: str, url: str):
     except Exception as e:
         logger.exception("Ошибка отправки")
 
-# === RSS-источники ===
+# === Парсер RSS ===
 RSS_SOURCES = [
+    # Аналитические
     {"name": "E3G", "rss": "https://www.e3g.org/feed/"},
     {"name": "Foreign Affairs", "rss": "https://www.foreignaffairs.com/rss.xml"},
     {"name": "Reuters Institute", "rss": "https://reutersinstitute.politics.ox.ac.uk/feed"},
@@ -153,8 +147,12 @@ RSS_SOURCES = [
     {"name": "Carnegie", "rss": "https://carnegieendowment.org/rss"},
     {"name": "ECONOMIST", "rss": "https://www.economist.com/leaders/rss.xml"},
     {"name": "BLOOMBERG", "rss": "https://www.bloomberg.com/politics/feeds/site.xml"},
-    {"name": "WEF", "rss": "https://www.weforum.org/feeds/root.xml"},
+    # Новостные с фильтрацией
+    {"name": "REUTERS", "rss": "https://www.reuters.com/rss/world/", "filter_path": ["/russia/", "/ukraine/", "/europe/", "/nato/", "/defense/"]},
+    {"name": "AP", "rss": "https://feeds.apnews.com/apf-topnews", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
+    {"name": "POLITICO", "rss": "https://www.politico.com/rss/politicopicks.xml", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
     {"name": "BBCNEWS", "rss": "https://feeds.bbci.co.uk/news/world/rss.xml", "filter_path": ["/russia/", "/ukraine/", "/europe/"]},
+    {"name": "WEF", "rss": "https://www.weforum.org/feeds/root.xml"},
 ]
 
 def parse_rss_sources():
@@ -170,6 +168,7 @@ def parse_rss_sources():
                 if "filter_path" in src and not any(p in url.lower() for p in src["filter_path"]):
                     continue
 
+                # Фильтр по дате (старше 7 дней — пропуск)
                 published = getattr(entry, "published", None)
                 if published:
                     try:
@@ -190,6 +189,13 @@ def parse_rss_sources():
                 if not is_relevant(f"{title} {desc}"):
                     continue
 
+                # Убираем дубль заголовка
+                if desc.lower().startswith(title.lower()):
+                    desc = desc[len(title):].lstrip(" –-:,.")
+
+                desc = re.sub(r"(Сводная информация о листинге|Пожалуйста, присоединяйтесь|Drupal-администратор).*", "", desc, flags=re.IGNORECASE | re.DOTALL)
+                desc = "\n".join(line.strip() for line in desc.splitlines() if line.strip())
+
                 lead = desc.split(". ")[0].strip() or desc[:150] + "..."
                 send_to_telegram(src["name"], title, lead, url)
                 mark_article_sent(url, title)
@@ -198,7 +204,7 @@ def parse_rss_sources():
         except Exception as e:
             logger.error(f"Ошибка RSS {src['name']}: {e}")
 
-# === HTML-источники ===
+# === Парсеры non-RSS ===
 def parse_goodjudgment():
     url = "https://goodjudgment.com/open-questions/"
     try:
@@ -210,7 +216,8 @@ def parse_goodjudgment():
             if href.startswith('/'): href = 'https://goodjudgment.com' + href
             if not href.startswith('http') or is_article_sent(href): continue
             if not is_relevant(title): continue
-            send_to_telegram("GOODJ", title, "Superforecasting question", href)
+            lead = "Superforecasting question on geopolitical risk"
+            send_to_telegram("GOODJ", title, lead, href)
             mark_article_sent(href, title)
     except Exception as e:
         logger.error(f"Ошибка GOODJ: {e}")
@@ -226,7 +233,8 @@ def parse_jhchs():
             if href.startswith('/'): href = url + href
             if not href.startswith('http') or is_article_sent(href): continue
             if not is_relevant(title): continue
-            send_to_telegram("JHCHS", title, "Report from Johns Hopkins", href)
+            lead = "Report from Johns Hopkins Center for Health Security"
+            send_to_telegram("JHCHS", title, lead, href)
             mark_article_sent(href, title)
     except Exception as e:
         logger.error(f"Ошибка JHCHS: {e}")
@@ -258,7 +266,8 @@ def parse_dni():
                 if not full_url.startswith('http'): full_url = url + full_url
                 if is_article_sent(full_url): continue
                 title = "DNI Global Trends Report"
-                send_to_telegram("DNI", title, "US intelligence forecast", full_url)
+                lead = "US National Intelligence Council forecast on long-term global risks"
+                send_to_telegram("DNI", title, lead, full_url)
                 mark_article_sent(full_url, title)
                 return
     except Exception as e:
@@ -275,7 +284,8 @@ def parse_bbc_future():
             if is_article_sent(href): continue
             title = item.get_text(strip=True)
             if not title or not is_relevant(title): continue
-            send_to_telegram("BBCFUTURE", title, "From BBC Future", href)
+            lead = "From BBC Future"
+            send_to_telegram("BBCFUTURE", title, lead, href)
             mark_article_sent(href, title)
     except Exception as e:
         logger.error(f"Ошибка BBCFUTURE: {e}")
@@ -292,21 +302,25 @@ def parse_future_timeline():
             if 'futuretimeline.net' not in href or is_article_sent(href): continue
             title = item.get_text(strip=True)
             if not title or not is_relevant(title): continue
-            send_to_telegram("FUTTL", title, "Long-term forecast", href)
+            lead = "Long-term forecast"
+            send_to_telegram("FUTTL", title, lead, href)
             mark_article_sent(href, title)
     except Exception as e:
         logger.error(f"Ошибка FUTTL: {e}")
 
-# === Основная функция ===
-def fetch_all():
-    logger.info("📡 Проверка всех источников...")
-    parse_rss_sources()
+def parse_non_rss_sources():
     parse_goodjudgment()
     parse_jhchs()
     parse_metaculus()
     parse_dni()
     parse_bbc_future()
     parse_future_timeline()
+
+# === Основная функция ===
+def fetch_all():
+    logger.info("📡 Проверка всех источников...")
+    parse_rss_sources()
+    parse_non_rss_sources()
     logger.info("✅ Проверка завершена.")
 
 # === HTTP-сервер для Render ===
@@ -327,7 +341,7 @@ def run_http():
 
 # === Запуск ===
 if __name__ == "__main__":
-    logger.info("🚀 Запуск бота (все 19 источников)...")
+    logger.info("🚀 Запуск мониторинга России/Украины (все источники)...")
     threading.Thread(target=run_http, daemon=True).start()
 
     # Проверка подключения к Supabase
