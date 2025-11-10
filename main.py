@@ -168,7 +168,7 @@ def parse_rss_sources():
                 if "filter_path" in src and not any(p in url.lower() for p in src["filter_path"]):
                     continue
 
-                # Фильтр по дате (старше 7 дней — пропуск)
+                # Фильтр по дате (старше 1 дней — пропуск)
                 published = getattr(entry, "published", None)
                 if published:
                     try:
@@ -178,7 +178,7 @@ def parse_rss_sources():
                             pub_date = datetime.strptime(published, "%Y-%m-%dT%H:%M:%S%z")
                         except:
                             pub_date = None
-                    if pub_date and (datetime.now(timezone.utc) - pub_date).days > 7:
+                    if pub_date and (datetime.now(timezone.utc) - pub_date).days > 1:
                         continue
 
                 title = entry.get("title", "").strip()
