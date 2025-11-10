@@ -225,7 +225,7 @@ def parse_goodjudgment():
 def parse_jhchs():
     url = "https://www.centerforhealthsecurity.org"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, timeout=15)
         soup = BeautifulSoup(resp.text, 'html.parser')
         for item in soup.select('h2 a, h3 a'):
             title = item.get_text(strip=True)
@@ -242,7 +242,7 @@ def parse_jhchs():
 def parse_metaculus():
     api_url = "https://www.metaculus.com/api2/questions/?status=open&limit=10"
     try:
-        data = requests.get(api_url, timeout=10).json()
+        data = requests.get(api_url, timeout=20).json()
         for q in data.get('results', []):
             title = q.get('title', '').strip()
             page_url = q.get('page_url', '').strip()
@@ -258,7 +258,7 @@ def parse_metaculus():
 def parse_dni():
     url = "https://www.dni.gov"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, timeout=25)
         soup = BeautifulSoup(resp.text, 'html.parser')
         for a in soup.find_all('a', href=True):
             if 'global' in a['href'].lower() and 'trend' in a['href'].lower():
@@ -276,7 +276,7 @@ def parse_dni():
 def parse_bbc_future():
     url = "https://www.bbc.com/future"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, timeout=30)
         soup = BeautifulSoup(resp.text, 'html.parser')
         for item in soup.select('a[href*="/future/article/"]'):
             href = item['href']
@@ -293,7 +293,7 @@ def parse_bbc_future():
 def parse_future_timeline():
     url = "https://www.futuretimeline.net"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, timeout=35)
         if resp.status_code != 200: return
         soup = BeautifulSoup(resp.text, 'html.parser')
         for item in soup.select('li a'):
