@@ -178,7 +178,7 @@ def parse_rss_sources():
                             pub_date = datetime.strptime(published, "%Y-%m-%dT%H:%M:%S%z")
                         except:
                             pub_date = None
-                    if pub_date and (datetime.now(timezone.utc) - pub_date).days > 1:
+                    if pub_date and (datetime.now(timezone.utc) - pub_date).days > 2:
                         continue
 
                 title = entry.get("title", "").strip()
@@ -240,7 +240,7 @@ def parse_jhchs():
         logger.error(f"Ошибка JHCHS: {e}")
 
 def parse_metaculus():
-    api_url = "https://www.metaculus.com/api2/questions/?status=open&limit=10"
+    api_url = "https://www.metaculus.com/api2/questions/?status=open&limit=20"
     try:
         data = requests.get(api_url, timeout=20).json()
         for q in data.get('results', []):
